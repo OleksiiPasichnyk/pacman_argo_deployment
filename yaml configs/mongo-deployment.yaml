@@ -1,0 +1,85 @@
+# Service Definition for MongoDB
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: pacman
+  labels:
+    app: mongo
+spec:
+  ports:
+    - port: 27017
+      targetPort: 27017
+  selector:
+    app: mongo
+  clusterIP: None # Headless service for StatefulSet
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  namespace: pacman
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:6.0
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: "admin"
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: "admin"
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
+      - name: mongo-setup
+        image: mongo:6
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          echo "Waiting for MongoDB to start...";
+          while ! mongo --host localhost --authenticationDatabase admin -u admin -p admin --eval "db.stats()" > /dev/null 2>&1; do
+            sleep 2;
+          done;
+          echo "MongoDB started";
+          mongo --host localhost --authenticationDatabase admin -u admin -p admin pacman --eval "
+            db.createUser({
+              user: 'pacman',
+              pwd: 'pacman',
+              roles: [{role: 'readWrite', db: 'pacman'}]
+            });
+          "
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
+      volumes:
+      - name: mongo-data
+        persistentVolumeClaim:
+          claimName: mongo-data
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-data
+  namespace: pacman
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
