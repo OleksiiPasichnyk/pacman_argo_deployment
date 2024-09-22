@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pacman-argo
+  namespace: pacman-argo
+  version: v1
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/OleksiiPasichnyk/pacman_argo_deployment.git
+    targetRevision: HEAD
+    path: yaml-configs
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: pacman-argo
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true

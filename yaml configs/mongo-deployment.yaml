@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mongo
-  namespace: pacman
+  namespace: pacman-argo
   labels:
     app: mongo
 spec:
@@ -21,7 +21,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mongo
-  namespace: pacman
+  namespace: pacman-argo
 spec:
   replicas: 1
   selector:
@@ -76,7 +76,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mongo-data
-  namespace: pacman
+  namespace: pacman-argo
 spec:
   accessModes:
     - ReadWriteOnce
