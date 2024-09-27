@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: apps-folder-monitor
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/твой-репозиторий.git
+        revision: HEAD
+        directories:
+          - path: path/to/applications/*  # Путь к папке, где будут лежать подприложения
+  template:
+    metadata:
+      name: '{{path.basename}}'
