@@ -74,10 +74,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: "pacman-argo-2.paxel.ca."
-    external-dns.alpha.kubernetes.io/target: "router.paxel.ca."
-    external-dns.alpha.kubernetes.io/type: "CNAME"
   name: pac-man
   namespace: pacman-argo
   labels:
